@@ -1,10 +1,30 @@
 import os
+from google import genai
+
+schema_get_files_info = genai.types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in a specified directory relative to the working directory, providing file size and directory status",
+    parameters=genai.types.Schema(
+        type=genai.types.Type.OBJECT,
+        properties={
+            "directory": genai.types.Schema(
+                type=genai.types.Type.STRING,
+                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+            ),
+        },
+    ),
+)
 
 def get_files_info(working_directory, directory="."):
     
     #validate directory is within working_directory
     abs_working_directory = os.path.abspath(working_directory)
-    target_dir = os.path.normpath(os.path.join(abs_working_directory, directory))
+
+    target_dir = os.path.normpath(
+        os.path.join(abs_working_directory, 
+                     directory,)
+    )
+
     if os.path.commonpath([abs_working_directory,target_dir]) != abs_working_directory:
         return f'   Error: Cannot list "{directory}" as it is outside the permitted working directory'
     
@@ -12,17 +32,21 @@ def get_files_info(working_directory, directory="."):
     if not os.path.isdir(target_dir):
         return f'   Error: "{target_dir}" is not a directory'
     
-    #record directory content in dictionary
+    #record directory content in list
     list_directory = []
     for target in os.listdir(target_dir):
         
         try:
-            file_size = os.path.getsize(os.path.join(target_dir,target))
+            file_size = os.path.getsize(
+                os.path.join(target_dir,target)
+            )
         except Exception as e:
             return f'   Error: {e}'
         
         try:
-            is_dir = os.path.isdir(os.path.join(target_dir,target))
+            is_dir = os.path.isdir(
+                os.path.join(target_dir,target)
+            )
         except Exception as e:
             return f'   Error: {e}'
         

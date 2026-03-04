@@ -3,6 +3,7 @@ import argparse
 from dotenv import load_dotenv
 from google import genai
 from prompts import system_prompt
+from functions.call_functions import available_functions
 
 def main():
     print("Hello from ai-agent!")
@@ -28,7 +29,9 @@ def main():
     generate_content = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=messages,
-        config=genai.types.GenerateContentConfig(system_instruction=system_prompt),
+        config=genai.types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            tools=[available_functions]),
         )
 
     if generate_content.usage_metadata == None:
@@ -38,10 +41,17 @@ def main():
         print(f"User prompt: {args.user_prompt}")
         print(f"Prompt tokens: {generate_content.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {generate_content.usage_metadata.candidates_token_count}")
-        print(generate_content.text)
+        if len(generate_content.function_calls) == 0:
+            print(generate_content.text)
+        else:
+            for c in generate_content.function_calls:
+                print(f'    Calling function: {c.name}({c.args})')           
     else:
-        print(generate_content.text)
-
+        if len(generate_content.function_calls) == 0:
+            print(generate_content.text)
+        else:
+            for c in generate_content.function_calls:
+                print(f'    Calling function: {c.name}({c.args})')
 
 if __name__ == "__main__":
     main()
