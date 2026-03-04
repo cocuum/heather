@@ -2,6 +2,7 @@ import os
 import argparse
 from dotenv import load_dotenv
 from google import genai
+from prompts import system_prompt
 
 def main():
     print("Hello from ai-agent!")
@@ -26,7 +27,9 @@ def main():
     #start engine
     generate_content = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=messages)
+        contents=messages,
+        config=genai.types.GenerateContentConfig(system_instruction=system_prompt),
+        )
 
     if generate_content.usage_metadata == None:
         raise RuntimeError("API is Non-Responsive")
