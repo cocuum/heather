@@ -1,0 +1,7 @@
+PYTHON = [
+    {"argparse": [ArgumentParser,]},
+    {"google.genai": [Client,types,]},
+    {"dotenv": [load_dotenv,]},
+    {"os": [environ,listdir,makedirs,path,]},
+    subprocess,
+    ]

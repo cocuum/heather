@@ -1,21 +1,21 @@
-import os
 import subprocess
-from google import genai
+from google.genai import types
+from os import path
 
-schema_run_python_file = genai.types.FunctionDeclaration(
+schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",
     description="Execute a Python file in a specified directory relative to the working directory and return the output. The file must be a .py file and execution is subject to a timeout of 30 seconds. Output includes both STDOUT and STDERR. If the process exits with a non-zero code, that is also included in the output.", 
-    parameters=genai.types.Schema(
-        type=genai.types.Type.OBJECT,
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
         properties={
-            "file_path": genai.types.Schema(
-                type=genai.types.Type.STRING,
+            "file_path": types.Schema(
+                type=types.Type.STRING,
                 description="File path to read content from, relative to the working directory (default is the working directory itself). The path must include a filename and cannot be a directory."
             ),
-            "args": genai.types.Schema(
-                type=genai.types.Type.ARRAY,
-                items=genai.types.Schema(
-                    type=genai.types.Type.STRING
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.STRING
                 ),
                 description="Optional list of string arguments to pass to the Python file when executing"
             ),
@@ -26,15 +26,15 @@ schema_run_python_file = genai.types.FunctionDeclaration(
 
 def run_python_file(working_directory, file_path, args=None):
 
-    abs_working_directory = os.path.abspath(working_directory)
-    target_file = os.path.normpath(os.path.join(abs_working_directory,file_path))
+    abs_working_directory = path.abspath(working_directory)
+    target_file = path.normpath(path.join(abs_working_directory,file_path))
     
     #validate directory is within working_directory
-    if os.path.commonpath([abs_working_directory, target_file]) != abs_working_directory:
+    if path.commonpath([abs_working_directory, target_file]) != abs_working_directory:
         return f'    Error: Cannot execute "{file_path}" as it is outside the permitted working directory'
     
     #is file a file?
-    if not os.path.isfile(target_file):
+    if not path.isfile(target_file):
         return f'   Error: "{file_path}" does not exist or is not a regular file'
     
     #is file .py?
