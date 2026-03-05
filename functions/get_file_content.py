@@ -1,5 +1,21 @@
 import os
 from config import MAXCHARS
+from google import genai
+
+schema_get_file_content = genai.types.FunctionDeclaration(
+    name="get_file_content",
+    description="Read the content of a file in a specified directory relative to the working directory, providing the content of the file up to MAXCHARS characters and content has been truncated if file has more than MAXCHARS characters",
+    parameters=genai.types.Schema(
+        type=genai.types.Type.OBJECT,
+        properties={
+            "file_path": genai.types.Schema(
+                type=genai.types.Type.STRING,
+                description="File path to read content from, relative to the working directory (default is the working directory itself). The path must include a filename and cannot be a directory.",
+            ),
+        },
+        required=["file_path"],
+    ),
+)
 
 def get_file_content(working_directory,file_path):
     

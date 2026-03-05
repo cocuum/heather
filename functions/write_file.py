@@ -1,4 +1,24 @@
 import os
+from google import genai
+
+schema_write_file = genai.types.FunctionDeclaration(
+    name="write_file",
+    description="Write content to a file in a specified directory relative to the working directory. If the file already exists, it will be overwritten. The file path must end with a filename and cannot be a directory. All parent directories must already exist or be created by the function. The function returns a success message with the number of characters written or an error message if writing fails.",
+    parameters=genai.types.Schema(
+        type=genai.types.Type.OBJECT,
+        properties={
+            "file_path": genai.types.Schema(
+                type=genai.types.Type.STRING,
+                description="File path to write content to, relative to the working directory (default is the working directory itself). The path must include a filename and cannot be a directory."
+            ),
+            "content": genai.types.Schema(
+                type=genai.types.Type.STRING,
+                description="The content to write to the file."
+            ),
+        },
+        required=["file_path","content"],
+    )
+)
 
 def write_file(working_directory, file_path, content):
 
