@@ -3,7 +3,8 @@ import argparse
 from dotenv import load_dotenv
 from google import genai
 from prompts import system_prompt
-from functions.call_functions import available_functions
+from functions.call_functions import available_functions, call_function
+
 
 def main():
     print("Hello from ai-agent!")
@@ -37,21 +38,29 @@ def main():
     if generate_content.usage_metadata == None:
         raise RuntimeError("API is Non-Responsive")
 
+    #check for verbose flag
     if args.verbose:
         print(f"User prompt: {args.user_prompt}")
         print(f"Prompt tokens: {generate_content.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {generate_content.usage_metadata.candidates_token_count}")
-        if len(generate_content.function_calls) == 0:
-            print(generate_content.text)
-        else:
-            for c in generate_content.function_calls:
-                print(f'    Calling function: {c.name}({c.args})')           
+    
+    if len(generate_content.function_calls) == 0:
+        print(generate_content.text)
     else:
-        if len(generate_content.function_calls) == 0:
-            print(generate_content.text)
-        else:
-            for c in generate_content.function_calls:
-                print(f'    Calling function: {c.name}({c.args})')
+        function_calls_response = []
+        for c in generate_content.function_calls:
+            call_result = call_function(c, verbose=args.verbose)
+            if len(call_result.parts) == 0:
+                raise Exception("No functions were called")
+            called_func_name = call_result.parts[0].function_response
+            if called_func_name == None:
+                raise Exception("No response has been provided")
+            response = called_func_name.response
+            if response == None:
+                raise Exception("No response was produced")
+            function_calls_response.append(response)
+            if args.verbose:
+                print(f'    -> {response}')
 
 if __name__ == "__main__":
     main()
