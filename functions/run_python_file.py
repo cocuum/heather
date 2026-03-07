@@ -34,25 +34,25 @@ def run_python_file(working_directory, file_path, args=None):
             timeout=30
         )
 
-        output = []
+        message = []
         if sbp.returncode != 0:
-            output.append(f'Process exited with code {sbp.returncode}')
+            message.append(f'Process exited with code {sbp.returncode}')
         if len(sbp.stdout) == 0 and len(sbp.stderr) == 0:
-            output.append(f'No output produced')
+            message.append(f'No message produced')
         if sbp.stdout:
-            output.append(f'STDOUT: {sbp.stdout}')
+            message.append(f'STDOUT: {sbp.stdout}')
         if sbp.stderr:
-            output.append(f'STDERR: {sbp.stderr}')
+            message.append(f'STDERR: {sbp.stderr}')
         
     except Exception as e:
         return f'   Error: executing Python file: {e}'
 
-    return "\n".join(output)
+    return "\n".join(message)
 
 # Define the function declaration for run_python_file
 schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",
-    description="Execute a Python file in a specified directory relative to the working directory and return the output. The file must be a .py file and execution is subject to a timeout of 30 seconds. Output includes both STDOUT and STDERR. If the process exits with a non-zero code, that is also included in the output.", 
+    description="Execute a Python file in a specified directory relative to the working directory and return the message. The file must be a .py file and execution is subject to a timeout of 30 seconds. Message includes both STDOUT and STDERR. If the process exits with a non-zero code, that is also included in the message.", 
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={

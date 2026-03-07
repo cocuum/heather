@@ -21,10 +21,10 @@ def heather(client,messages,verbose):
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     
-    if len(response.function_calls) == 0:
+    if not response.function_calls:
         print("Response:")
         print(response.text)
-        return
+        return response
             
     function_responses = []
     for c in response.function_calls:
@@ -43,4 +43,9 @@ def heather(client,messages,verbose):
             print(f'    -> {call_result.parts[0].function_response.response}')
     
         function_responses.append(call_result.parts[0])
+    
+    #inclusion of function response in the message history for next iteration
+    messages.append(types.Content(role="user",parts=function_responses))
+    
+    return response
         

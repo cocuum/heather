@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from dotenv import load_dotenv
+from config import MAXCALLS
 from os import environ
 from google.genai import Client,types
 
@@ -29,14 +30,18 @@ def main():
     if args.verbose:
         print(f"User prompt: {args.user_prompt}")
     
-    heather(client,messages,args.verbose)
+    #Call heather function MAXCALLS times
+    for _ in range(MAXCALLS):
+        call = heather(client,messages,args.verbose)
+        #check for candidates ans append content to messages for next iteration
+        if call.candidates:
+            for candidate in call.candidates:
+                messages.append(candidate.content)
+        if not call.function_calls:
+            break
+        if _ == 19:
+            print("Reached maximum number of iterations (20)")
+            exit(1)
     
 if __name__ == "__main__":
     main()
-
-    '''for _ in range(20):
-        heather()
-        if _ == 19:
-            print("Heatherbot has completed 20 iterations. Ending program.")
-            exit(1)
-'''
